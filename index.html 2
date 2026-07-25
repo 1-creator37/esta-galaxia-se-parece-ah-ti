@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universo Galáctico 8K 3D - Dedicado a Greys ✨</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['Orbitron', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #030712;
+      user-select: none;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(244, 63, 94, 0.4);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans overflow-hidden select-none w-screen h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // --- DATOS DE LOS PLANETAS Y LA ESTRELLA GREYS ---
+    const INITIAL_PLANETS = [
+      {
+        id: 'greisly-star',
+        name: 'Greisly Star',
+        spanishName: 'Estrella Greys ✨',
+        type: 'star',
+        radius: 5.8,
+        distance: 0,
+        speed: 0,
+        color: '#ff66b2',
+        atmosphereColor: '#ff1493',
+        quote: 'Greys, eres la estrella más brillante e radiante de todo mi universo. ¡Feliz 18 Years!',
+        message: 'Como la estrella principal de esta galaxia, tu sonrisa, tu ternura y tu esencia iluminan cada rincón de mi existencia. Esta galaxia entera gira en torno a ti, Greys. ❤️',
+        fact: 'La Estrella Greys emite una luz dorada y rosada eterna que simboliza tu dulzura y la magia de cumplir 18 años.',
+        textureType: 'sun'
+      },
+      {
+        id: 'mercury',
+        name: 'Mercury',
+        spanishName: 'Mercurio',
+        type: 'rocky',
+        radius: 1.2,
+        distance: 12,
+        speed: 0.025,
+        color: '#a8a8a8',
+        quote: 'Para Greys: El pensamiento y la rapidez con la que conectamos trasciende el tiempo.',
+        message: 'Mercurio es rápido y dinámico, tal como nuestras conversaciones e ideas cuando compartimos momentos inolvidables.',
+        fact: 'Mercurio orbita alrededor del Sol más rápido que ningún otro planeta.',
+        textureType: 'mercury'
+      },
+      {
+        id: 'venus',
+        name: 'Venus',
+        spanishName: 'Venus',
+        type: 'rocky',
+        radius: 1.8,
+        distance: 18,
+        speed: 0.018,
+        color: '#e3bb76',
+        atmosphereColor: '#ffd9aa',
+        quote: 'Para Greys: La belleza de tu alma brilla más que cualquier estrella en el firmamento.',
+        message: 'Venus es conocido como el lucero del alba. Su brillo inigualable me recuerda la nobleza y la paz que transmites, Greys.',
+        fact: 'Venus brilla más en nuestro cielo nocturno que cualquier otro planeta o estrella.',
+        textureType: 'venus'
+      },
+      {
+        id: 'earth',
+        name: 'Earth',
+        spanishName: 'Planeta Greys (Tierra) 💖',
+        type: 'rocky',
+        radius: 2.2,
+        distance: 26,
+        speed: 0.014,
+        color: '#2b82c9',
+        atmosphereColor: '#ff69b4',
+        quote: 'Entre 8 mil millones de personas en la Tierra, haberte conocido a ti, Greys, es mi mayor bendición.',
+        message: 'En este planeta habita la persona más maravillosa y especial del mundo: Greys. ¡Feliz cumpleaños número 18!',
+        fact: 'Un hogar único en el cosmos que celebra la vida y los 18 años de Greys.',
+        textureType: 'earth',
+        isEarth: true,
+        friendName: 'Greys (Feliz 18 Years) ❤️',
+        friendMessage: 'Greys, gracias por ser mi lugar seguro, mi alegría y mi más bonita compañía en este vasto universo. ¡Esta galaxia completa fue creada con todo el corazón especialmente para ti!'
+      },
+      {
+        id: 'mars',
+        name: 'Mars',
+        spanishName: 'Marte',
+        type: 'rocky',
+        radius: 1.5,
+        distance: 34,
+        speed: 0.011,
+        color: '#c1440e',
+        atmosphereColor: '#e06e38',
+        quote: 'Con fuerza y determinación, nada en el universo podrá detenernos.',
+        message: 'El planeta rojo representa el valor y el espíritu inquebrantable con el que superamos cualquier obstáculo juntos.',
+        fact: 'Marte alberga el Monte Olimpo, el volcán más alto conocido en el sistema solar.',
+        textureType: 'mars'
+      },
+      {
+        id: 'jupiter',
+        name: 'Jupiter',
+        spanishName: 'Júpiter',
+        type: 'gas',
+        radius: 4.2,
+        distance: 46,
+        speed: 0.007,
+        color: '#d4a373',
+        atmosphereColor: '#edd8be',
+        quote: 'Tu corazón es tan inmenso como el planeta más grande de la galaxia.',
+        message: 'Júpiter protege a los demás planetas con su inmensa gravedad, de la misma manera que tú siempre cuidas con gran cariño.',
+        fact: 'Júpiter es más de dos veces más masivo que todos los demás planetas juntos.',
+        textureType: 'jupiter'
+      },
+      {
+        id: 'saturn',
+        name: 'Saturn',
+        spanishName: 'Saturno',
+        type: 'gas',
+        radius: 3.5,
+        distance: 60,
+        speed: 0.005,
+        color: '#e6c875',
+        atmosphereColor: '#fff1bf',
+        hasRings: true,
+        ringColor: '#c2a15f',
+        quote: 'Eres una joya única rodeada de momentos dorados e inolvidables.',
+        message: 'Saturno deslumbra con sus majestuosos anillos brillantes. Así de deslumbrante es cada sonrisa que compartimos.',
+        fact: 'Los espectaculares anillos de Saturno están formados por miles de millones de pedazos de hielo y roca.',
+        textureType: 'saturn'
+      },
+      {
+        id: 'uranus',
+        name: 'Uranus',
+        spanishName: 'Urano',
+        type: 'ice',
+        radius: 2.8,
+        distance: 72,
+        speed: 0.0035,
+        color: '#4bdeed',
+        atmosphereColor: '#a1f2fa',
+        hasRings: true,
+        ringColor: '#63e1ed',
+        quote: 'Tu autenticidad y magia destacan con luz propia sin importar las modas.',
+        message: 'Urano orbita de lado, siendo único e irrepetible. Me enseña que ser diferente y auténtica es la mayor cualidad.',
+        fact: 'Urano gira sobre su costado, con una inclinación axial casi horizontal única.',
+        textureType: 'uranus'
+      },
+      {
+        id: 'neptune',
+        name: 'Neptune',
+        spanishName: 'Neptuno',
+        type: 'ice',
+        radius: 2.7,
+        distance: 84,
+        speed: 0.0025,
+        color: '#2746d8',
+        atmosphereColor: '#6a82fb',
+        quote: 'Tan profundo y sereno como el azul del océano cósmico.',
+        message: 'En lo más lejano del espacio, Neptuno brilla con un azul místico. Nos recuerda que la distancia nunca enfriará el cariño sincero.',
+        fact: 'Neptuno posee los vientos más veloces del sistema solar, superando los 2,000 km/h.',
+        textureType: 'neptune'
+      },
+      {
+        id: 'pluto',
+        name: 'Pluto',
+        spanishName: 'Plutón',
+        type: 'dwarf',
+        radius: 1.0,
+        distance: 94,
+        speed: 0.0018,
+        color: '#bfa38a',
+        quote: 'No importa cuán pequeño parezca un detalle, si se hace con amor, perdura para siempre.',
+        message: 'Aunque está en el límite del mapa, Plutón tiene un corazón grabado en su superficie. Siempre hay un lugar especial para ti.',
+        fact: 'Plutón tiene un glaciar de nitrógeno en forma de gran corazón llamado Tombaugh Regio.',
+        textureType: 'pluto'
+      }
+    ];
+
+    // --- GENERADOR DE TEXTURAS 3D ---
+    function generatePlanetTexture(type) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      if (type === 'sun') {
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#ff1493');
+        grad.addColorStop(0.5, '#ff66b2');
+        grad.addColorStop(1, '#ff80bf');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 400; i++) {
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.beginPath();
+          ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (type === 'earth') {
+        ctx.fillStyle = '#1e3a8a';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#15803d';
+        ctx.beginPath();
+        ctx.ellipse(w * 0.25, h * 0.4, 120, 90, 0, 0, Math.PI * 2);
+        ctx.ellipse(w * 0.32, h * 0.7, 70, 100, 0, 0, Math.PI * 2);
+        ctx.ellipse(w * 0.55, h * 0.55, 90, 90, 0, 0, Math.PI * 2);
+        ctx.ellipse(w * 0.75, h * 0.38, 160, 100, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (type === 'jupiter' || type === 'saturn') {
+        const baseColor = type === 'jupiter' ? '#d4a373' : '#e6c875';
+        ctx.fillStyle = baseColor;
+        ctx.fillRect(0, 0, w, h);
+        for (let y = 0; y < h; y += 12) {
+          ctx.fillStyle = y % 24 === 0 ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.15)';
+          ctx.fillRect(0, y, w, 6);
+        }
+      } else {
+        const colors = {
+          mercury: '#a8a8a8',
+          venus: '#e3bb76',
+          mars: '#c1440e',
+          uranus: '#4bdeed',
+          neptune: '#2746d8',
+          pluto: '#bfa38a'
+        };
+        ctx.fillStyle = colors[type] || '#888888';
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+      return texture;
+    }
+
+    // --- COMPONENTE: PORTAL DE INICIO DE SESIÓN ---
+    function LoginPortal({ onLoginSuccess }) {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [errorMsg, setErrorMsg] = useState('');
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const cleanUser = username.trim().toLowerCase();
+        const cleanPass = password.trim();
+
+        if ((cleanUser === 'greys' || cleanUser === 'greisly') && cleanPass === '1234') {
+          setErrorMsg('');
+          onLoginSuccess();
+        } else {
+          setErrorMsg('Usuario o contraseña incorrectos. Revisa la ayuda abajo.');
+        }
+      };
+
+      const handleQuickLogin = () => {
+        setUsername('Greys');
+        setPassword('1234');
+        setErrorMsg('');
+        setTimeout(() => {
+          onLoginSuccess();
+        }, 300);
+      };
+
+      return (
+        <div class="relative w-screen h-screen overflow-hidden flex items-center justify-center bg-slate-950 font-sans select-none">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-purple-950/40"></div>
+
+          <div class="relative z-10 w-full max-w-md mx-4 p-8 bg-slate-900/85 border border-pink-500/40 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-purple-950/60">
+            <div class="flex flex-col items-center gap-2 mb-6 text-center">
+              <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-950 via-purple-900 to-slate-900 border border-pink-500/50 text-pink-300 text-xs font-bold shadow-lg">
+                💖 <span>Universo Especial para Greys</span> ✨
+              </div>
+              <div class="px-4 py-1 rounded-2xl bg-gradient-to-r from-amber-500/20 via-pink-500/25 to-purple-500/20 border border-amber-400/50 text-amber-200 text-xs font-extrabold shadow-md">
+                🎂 ¡Feliz 18 Years, Greys! 🎈✨
+              </div>
+            </div>
+
+            <div class="text-center mb-6">
+              <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                Entrar a la Galaxia 🚀
+              </h1>
+              <p class="text-xs text-slate-300 mt-2">
+                Ingresa tus credenciales para explorar el Universo 8K 3D
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1">Nombre de Usuario</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Ej: Greys"
+                  class="w-full px-4 py-3 bg-slate-950/90 border border-slate-700 focus:border-pink-500 text-white rounded-2xl text-sm outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1">Contraseña</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Ej: 1234"
+                  class="w-full px-4 py-3 bg-slate-950/90 border border-slate-700 focus:border-purple-500 text-white rounded-2xl text-sm outline-none"
+                />
+              </div>
+
+              {errorMsg && (
+                <div class="p-3 bg-rose-950/80 border border-rose-500/50 rounded-2xl text-xs text-rose-200">
+                  {errorMsg}
+                </div>
+              )}
+
+              <div class="p-3 bg-purple-950/40 border border-purple-500/20 rounded-2xl text-xs text-purple-200/90 flex items-center justify-between">
+                <span class="font-mono text-[11px]">
+                  🔑 Usuario: <strong class="text-pink-300">Greys</strong> | Clave: <strong class="text-pink-300">1234</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleQuickLogin}
+                  class="text-pink-400 font-bold hover:underline ml-2"
+                >
+                  Auto-rellenar
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                class="w-full py-3.5 px-6 bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-pink-600/30 transition active:scale-98"
+              >
+                Entrar a la Galaxia 🚀
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENTE: CANVAS GALÁCTICO 3D ---
+    function GalaxyCanvas({ planets, selectedPlanet, onSelectPlanet }) {
+      const mountRef = useRef(null);
+      const selectedPlanetRef = useRef(selectedPlanet);
+      const orbitAngleRef = useRef(new Map());
+      const planetMeshesRef = useRef(new Map());
+
+      const isPointerDownRef = useRef(false);
+      const previousPointerPosRef = useRef({ x: 0, y: 0 });
+      const cameraTargetPosRef = useRef(new THREE.Vector3(0, 40, 115));
+      const cameraLookAtRef = useRef(new THREE.Vector3(0, 0, 0));
+      const cameraAngleRef = useRef({ theta: 0, phi: 0.55, radius: 115 });
+
+      useEffect(() => {
+        selectedPlanetRef.current = selectedPlanet;
+      }, [selectedPlanet]);
+
+      useEffect(() => {
+        const container = mountRef.current;
+        if (!container) return;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030712, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
+        camera.position.set(0, 40, 115);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.PointLight(0xffeedd, 3.5, 600);
+        sunLight.position.set(0, 0, 0);
+        scene.add(sunLight);
+
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 6000;
+        const starPos = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount * 3; i += 3) {
+          starPos[i] = (Math.random() - 0.5) * 1200;
+          starPos[i + 1] = (Math.random() - 0.5) * 1200;
+          starPos[i + 2] = (Math.random() - 0.5) * 1200;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.2, transparent: true, opacity: 0.8 });
+        scene.add(new THREE.Points(starGeo, starMat));
+
+        planets.forEach((planet) => {
+          const group = new THREE.Group();
+          const tex = generatePlanetTexture(planet.textureType);
+          const geom = new THREE.SphereGeometry(planet.radius, 48, 48);
+
+          let mat = planet.type === 'star'
+            ? new THREE.MeshBasicMaterial({ map: tex })
+            : new THREE.MeshStandardMaterial({ map: tex, roughness: 0.7, metalness: 0.1 });
+
+          const mesh = new THREE.Mesh(geom, mat);
+          group.add(mesh);
+
+          if (planet.atmosphereColor) {
+            const atmosGeom = new THREE.SphereGeometry(planet.radius * 1.08, 32, 32);
+            const atmosMat = new THREE.MeshBasicMaterial({
+              color: new THREE.Color(planet.atmosphereColor),
+              transparent: true,
+              opacity: 0.22,
+              side: THREE.BackSide
+            });
+            group.add(new THREE.Mesh(atmosGeom, atmosMat));
+          }
+
+          if (planet.hasRings) {
+            const ringGeom = new THREE.RingGeometry(planet.radius * 1.4, planet.radius * 2.3, 64);
+            const ringMat = new THREE.MeshStandardMaterial({
+              color: new THREE.Color(planet.ringColor || '#d4a373'),
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: 0.85
+            });
+            const ringMesh = new THREE.Mesh(ringGeom, ringMat);
+            ringMesh.rotation.x = Math.PI / 2.3;
+            group.add(ringMesh);
+          }
+
+          if (planet.distance > 0) {
+            const orbitCurve = new THREE.EllipseCurve(0, 0, planet.distance, planet.distance, 0, 2 * Math.PI, false, 0);
+            const points = orbitCurve.getPoints(120);
+            const orbitGeom = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, 0, p.y)));
+            const orbitMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+            scene.add(new THREE.LineLoop(orbitGeom, orbitMat));
+          }
+
+          scene.add(group);
+          planetMeshesRef.current.set(planet.id, group);
+
+          const angle = Math.random() * Math.PI * 2;
+          orbitAngleRef.current.set(planet.id, angle);
+          if (planet.distance > 0) {
+            group.position.x = Math.cos(angle) * planet.distance;
+            group.position.z = Math.sin(angle) * planet.distance;
+          }
+        });
+
+        let animationFrameId;
+        const clock = new THREE.Clock();
+
+        const animate = () => {
+          animationFrameId = requestAnimationFrame(animate);
+          const delta = clock.getDelta();
+
+          planets.forEach((planet) => {
+            const group = planetMeshesRef.current.get(planet.id);
+            if (!group) return;
+
+            group.rotation.y += delta * 0.8;
+
+            if (planet.distance > 0) {
+              let angle = orbitAngleRef.current.get(planet.id) || 0;
+              const effectiveSpeed = Math.max(planet.speed * 20.0, 0.28);
+              angle += effectiveSpeed * delta;
+              orbitAngleRef.current.set(planet.id, angle);
+
+              group.position.x = Math.cos(angle) * planet.distance;
+              group.position.z = Math.sin(angle) * planet.distance;
+            }
+          });
+
+          const currentSelected = selectedPlanetRef.current;
+          if (currentSelected) {
+            const targetGroup = planetMeshesRef.current.get(currentSelected.id);
+            if (targetGroup) {
+              const planetPos = targetGroup.position;
+              cameraLookAtRef.current.lerp(planetPos, 0.08);
+
+              const orbitTime = clock.getElapsedTime() * 0.35;
+              const distOffset = currentSelected.radius * 3.8 + 10;
+              const targetCamPos = new THREE.Vector3(
+                planetPos.x + Math.sin(orbitTime) * distOffset,
+                planetPos.y + distOffset * 0.35 + Math.sin(orbitTime * 0.5) * 2,
+                planetPos.z + Math.cos(orbitTime) * distOffset
+              );
+              cameraTargetPosRef.current.copy(targetCamPos);
+            }
+          } else {
+            cameraLookAtRef.current.lerp(new THREE.Vector3(0, 0, 0), 0.05);
+
+            if (!isPointerDownRef.current) {
+              cameraAngleRef.current.theta += delta * 0.12;
+            }
+
+            const { theta, phi, radius } = cameraAngleRef.current;
+            cameraTargetPosRef.current.x = radius * Math.sin(phi) * Math.sin(theta);
+            cameraTargetPosRef.current.y = radius * Math.cos(phi);
+            cameraTargetPosRef.current.z = radius * Math.sin(phi) * Math.cos(theta);
+          }
+
+          camera.position.lerp(cameraTargetPosRef.current, 0.06);
+          camera.lookAt(cameraLookAtRef.current);
+
+          renderer.render(scene, camera);
+        };
+
+        animate();
+
+        const handlePointerDown = (e) => {
+          isPointerDownRef.current = true;
+          previousPointerPosRef.current = { x: e.clientX, y: e.clientY };
+        };
+
+        const handlePointerMove = (e) => {
+          if (!isPointerDownRef.current) return;
+          const deltaX = e.clientX - previousPointerPosRef.current.x;
+          const deltaY = e.clientY - previousPointerPosRef.current.y;
+
+          cameraAngleRef.current.theta -= deltaX * 0.006;
+          cameraAngleRef.current.phi -= deltaY * 0.006;
+          cameraAngleRef.current.phi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraAngleRef.current.phi));
+
+          previousPointerPosRef.current = { x: e.clientX, y: e.clientY };
+        };
+
+        const handlePointerUp = () => {
+          isPointerDownRef.current = false;
+        };
+
+        const handleWheel = (e) => {
+          if (selectedPlanetRef.current) return;
+          cameraAngleRef.current.radius = Math.max(35, Math.min(250, cameraAngleRef.current.radius + e.deltaY * 0.08));
+        };
+
+        const handleResize = () => {
+          camera.aspect = container.clientWidth / container.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(container.clientWidth, container.clientHeight);
+        };
+
+        container.addEventListener('pointerdown', handlePointerDown);
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+        container.addEventListener('wheel', handleWheel);
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          cancelAnimationFrame(animationFrameId);
+          container.removeEventListener('pointerdown', handlePointerDown);
+          window.removeEventListener('pointermove', handlePointerMove);
+          window.removeEventListener('pointerup', handlePointerUp);
+          container.removeEventListener('wheel', handleWheel);
+          window.removeEventListener('resize', handleResize);
+          if (container.contains(renderer.domElement)) {
+            container.removeChild(renderer.domElement);
+          }
+        };
+      }, [planets]);
+
+      return <div ref={mountRef} class="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing" />;
+    }
+
+    // --- COMPONENTE: BARRA SUPERIOR DE PLANETAS ---
+    function PlanetSelectorNav({ planets, selectedPlanet, onSelectPlanet, onOpenEarthModal }) {
+      return (
+        <div class="fixed top-4 left-1/2 -translate-x-1/2 z-30 max-w-[95vw] overflow-x-auto no-scrollbar py-2 px-3 bg-slate-900/80 backdrop-blur-md rounded-full border border-slate-700/60 shadow-xl flex items-center gap-1.5">
+          <button
+            onClick={() => onSelectPlanet(null)}
+            class={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              !selectedPlanet ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.5)]' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            🌌 Vista General
+          </button>
+          {planets.map((planet) => {
+            const isSelected = selectedPlanet?.id === planet.id;
+            return (
+              <button
+                key={planet.id}
+                onClick={() => {
+                  onSelectPlanet(planet);
+                  if (planet.isEarth) {
+                    onOpenEarthModal();
+                  }
+                }}
+                class={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 relative ${
+                  isSelected
+                    ? 'bg-slate-800 text-white border border-pink-400 shadow-[0_0_12px_rgba(244,63,94,0.5)] scale-105'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60 border border-transparent'
+                }`}
+              >
+                <span class="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: planet.color }} />
+                <span>{planet.spanishName}</span>
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // --- COMPONENTE: MODAL TARJETA DEL PLANETA ---
+    function PlanetCardModal({ planet, planets, onClose, onSelectPlanet, onOpenEarthModal }) {
+      if (!planet) return null;
+      const currentIndex = planets.findIndex((p) => p.id === planet.id);
+
+      const handlePrev = () => {
+        const prevIdx = (currentIndex - 1 + planets.length) % planets.length;
+        onSelectPlanet(planets[prevIdx]);
+      };
+
+      const handleNext = () => {
+        const nextIdx = (currentIndex + 1) % planets.length;
+        onSelectPlanet(planets[nextIdx]);
+      };
+
+      return (
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-4 pointer-events-auto">
+          <div class="bg-slate-900/90 backdrop-blur-xl border border-pink-500/30 rounded-2xl p-5 shadow-[0_10px_35px_rgba(0,0,0,0.8)] text-slate-100 relative overflow-hidden">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full border border-white/20 shadow-md flex items-center justify-center font-bold text-xs" style={{ backgroundColor: planet.color }}>
+                  ✨
+                </div>
+                <div>
+                  <h3 class="text-lg font-extrabold text-white">Universo de {planet.spanishName}</h3>
+                  <p class="text-xs text-slate-400">Planeta #{currentIndex} del Universo</p>
+                </div>
+              </div>
+              <button onClick={onClose} class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                ✕
+              </button>
+            </div>
+
+            <div class="my-3 space-y-2">
+              <blockquote class="italic text-xs text-pink-300 bg-pink-950/30 border-l-2 border-pink-400 p-2.5 rounded-r-lg">
+                "{planet.quote}"
+              </blockquote>
+              <p class="text-xs text-slate-200 leading-relaxed">{planet.message}</p>
+              <div class="text-[11px] text-sky-300 bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
+                💡 <span class="font-bold">Dato Cósmico:</span> {planet.fact}
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+              <button onClick={handlePrev} class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+                ← Anterior
+              </button>
+
+              {planet.isEarth && (
+                <button onClick={onOpenEarthModal} class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-rose-600 font-bold text-white shadow-md animate-pulse">
+                  🎁 Ver Regalo Especial
+                </button>
+              )}
+
+              <button onClick={handleNext} class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+                Siguiente →
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENTE: REPRODUCTOR MUSICAL ---
+    function RomanticMusicPlayer() {
+      const [isPlaying, setIsPlaying] = useState(false);
+
+      const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+      };
+
+      return (
+        <div class="bg-slate-900/80 backdrop-blur-md border border-pink-500/30 rounded-full px-4 py-2 flex items-center gap-3 shadow-lg text-xs">
+          <button onClick={togglePlay} class="w-7 h-7 rounded-full bg-pink-600 hover:bg-pink-500 flex items-center justify-center text-white font-bold shadow-md">
+            {isPlaying ? '⏸' : '▶'}
+          </button>
+          <div class="flex flex-col">
+            <span class="font-bold text-white text-[11px]">Car's Outside - James Arthur</span>
+            <span class="text-[9px] text-pink-300">{isPlaying ? 'Reproduciendo música...' : 'Música en pausa'}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // --- APLICACIÓN PRINCIPAL CON LOGIN ---
+    function App() {
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [planets] = useState(INITIAL_PLANETS);
+      const [selectedPlanet, setSelectedPlanet] = useState(null);
+      const [showEarthModal, setShowEarthModal] = useState(false);
+
+      const earthPlanet = planets.find((p) => p.isEarth) || planets[3];
+
+      if (!isLoggedIn) {
+        return <LoginPortal onLoginSuccess={() => setIsLoggedIn(true)} />;
+      }
+
+      return (
+        <div class="relative w-screen h-screen overflow-hidden bg-slate-950">
+          <PlanetSelectorNav
+            planets={planets}
+            selectedPlanet={selectedPlanet}
+            onSelectPlanet={setSelectedPlanet}
+            onOpenEarthModal={() => setShowEarthModal(true)}
+          />
+
+          <GalaxyCanvas
+            planets={planets}
+            selectedPlanet={selectedPlanet}
+            onSelectPlanet={setSelectedPlanet}
+          />
+
+          {selectedPlanet && (
+            <PlanetCardModal
+              planet={selectedPlanet}
+              planets={planets}
+              onClose={() => setSelectedPlanet(null)}
+              onSelectPlanet={setSelectedPlanet}
+              onOpenEarthModal={() => setShowEarthModal(true)}
+            />
+          )}
+
+          <div class="fixed top-20 left-4 z-40">
+            <RomanticMusicPlayer />
+          </div>
+
+          <button
+            onClick={() => setIsLoggedIn(false)}
+            class="fixed top-20 right-4 z-40 px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold rounded-full shadow-lg"
+          >
+            🔒 Cerrar Sesión
+          </button>
+
+          {showEarthModal && (
+            <div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+              <div class="bg-slate-900 border border-pink-500/40 rounded-3xl p-6 max-w-md w-full text-center relative shadow-2xl space-y-4">
+                <button onClick={() => setShowEarthModal(false)} class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
+                  ✕
+                </button>
+                <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-2xl shadow-lg">
+                  🎁
+                </div>
+                <h2 class="text-2xl font-black text-white">{earthPlanet.friendName}</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">{earthPlanet.friendMessage}</p>
+                <button onClick={() => setShowEarthModal(false)} class="w-full py-2.5 rounded-xl bg-pink-600 hover:bg-pink-500 font-bold text-white shadow-lg">
+                  ¡Gracias, me encanta! ❤️
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
